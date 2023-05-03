@@ -26,7 +26,6 @@ func handleConnection(conn net.Conn) {
 		}
 		line = strings.TrimSpace(line)
 
-		// Check command
 		switch {
 		case strings.HasPrefix(line, "HELO") || strings.HasPrefix(line, "EHLO"):
 			writer.WriteString("250 smtp.example.com at your service\r\n")
@@ -38,7 +37,6 @@ func handleConnection(conn net.Conn) {
 			writer.WriteString("354 Start mail input; end with <CRLF>.<CRLF>\r\n")
 			writer.Flush()
 
-			// Read the email body
 			bodyLines, err := readEmailBody(reader)
 			if err != nil {
 				fmt.Println("Failed to read email body:", err)
@@ -73,7 +71,6 @@ func handleConnection(conn net.Conn) {
 }
 
 func StartServer() {
-	// Listen on port 25
 	ln, err := net.Listen("tcp", ":25")
 	if err != nil {
 		fmt.Println("Failed to start server:", err)
@@ -82,7 +79,6 @@ func StartServer() {
 	defer ln.Close()
 	fmt.Println("SMTP Server is online!")
 
-	// Accept connections
 	for {
 		conn, err := ln.Accept()
 		if err != nil {

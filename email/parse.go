@@ -11,7 +11,7 @@ import (
 
 type ParsedEmail struct {
 	From        string            `json:"from"`
-	To          string         `json:"to"`
+	To          string            `json:"to"`
 	Cc          []string          `json:"cc"`
 	Bcc         []string          `json:"bcc"`
 	Subject     string            `json:"subject"`
@@ -47,7 +47,7 @@ func parseEmail(rawEmail string) (*ParsedEmail, error) {
 		body = string(bodyBytes)
 	} else {
 		// You can handle multipart messages and attachments here.
-		// For the sake of simplicity, this example does not cover this part.
+		// For the sake of simplicity, I will not handle them here.
 	}
 
 	parsedEmail := &ParsedEmail{
@@ -63,7 +63,6 @@ func parseEmail(rawEmail string) (*ParsedEmail, error) {
 
 	return parsedEmail, nil
 }
-
 
 func readEmailBody(reader *bufio.Reader) ([]string, error) {
 	var bodyLines []string
@@ -82,7 +81,6 @@ func readEmailBody(reader *bufio.Reader) ([]string, error) {
 	}
 	return bodyLines, nil
 }
-
 
 func addressesToStrings(addresses []*mail.Address) []string {
 	stringsList := make([]string, 0, len(addresses))
