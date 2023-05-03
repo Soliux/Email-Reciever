@@ -16,6 +16,7 @@ func shutdown() {
 	fmt.Println("Shutting down servers...")
 	email.ShutdownServer()
 	web.ShutdownServer()
+	os.Exit(0)
 }
 
 func main() {
