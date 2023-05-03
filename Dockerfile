@@ -16,8 +16,9 @@ COPY . .
 # Build the Go app
 RUN go build -o main .
 
-# Expose port 25
+# Expose port 25 and 8080 to the outside world
 EXPOSE 25
+EXPOSE 8080
 
 # Command to run the app
 CMD ["./main"]
