@@ -20,7 +20,7 @@ func StartServer() {
 	})
 
 	api := r.Group("/api")
-	websocket := api.Group("/ws")
+	websocket := r.Group("/ws")
 
 	api.GET("/message", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -28,7 +28,7 @@ func StartServer() {
 		})
 	})
 
-	websocket.GET("/", websocketHandler)
+	websocket.GET("", websocketHandler)
 	r.Run()
 }
 
