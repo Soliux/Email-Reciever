@@ -14,7 +14,7 @@ func StartServer() {
 			"message": "Hello, World!",
 		})
 	})
-	r.Run() // listen and serve on
+	r.Run()
 }
 
 func ShutdownServer() {

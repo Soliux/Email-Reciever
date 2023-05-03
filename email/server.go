@@ -56,8 +56,6 @@ func handleConnection(conn net.Conn) {
 			fmt.Printf("Email To %s\n", parsedEmail.To)
 			fmt.Printf("Email Subject %s\n", parsedEmail.Subject)
 
-
-
 			if err != nil {
 				fmt.Println("Failed to print email as formatted JSON:", err)
 				return
@@ -73,7 +71,6 @@ func handleConnection(conn net.Conn) {
 		writer.Flush()
 	}
 }
-
 
 func StartServer() {
 	// Listen on port 25
@@ -94,4 +91,8 @@ func StartServer() {
 		}
 		go handleConnection(conn)
 	}
+}
+
+func ShutdownServer() {
+	fmt.Println("SMTP Server is offline!")
 }
