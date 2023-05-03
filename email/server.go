@@ -1,6 +1,7 @@
 package email
 
 import (
+	"bufio"
 	"fmt"
 	"net"
 	"strings"
@@ -10,39 +11,69 @@ func handleConnection(conn net.Conn) {
 	fmt.Println("New connection from", conn.RemoteAddr())
 	defer conn.Close()
 
-	// Read the client's message
-	buf := make([]byte, 1024)
-	n, err := conn.Read(buf)
-	if err != nil {
-		fmt.Println("Failed to read client message:", err)
-		return
-	}
+	reader := bufio.NewReader(conn)
+	writer := bufio.NewWriter(conn)
 
-	// Extract the sender and recipients from the message
-	message := string(buf[:n])
-	lines := strings.Split(message, "\r\n")
-	if len(lines) < 2 {
-		fmt.Println("Invalid message from client:", message)
-		return
-	}
-	from := strings.TrimPrefix(lines[0], "MAIL FROM:<")
-	from = strings.TrimSuffix(from, ">")
-	recipients := []string{}
-	for _, line := range lines[1:] {
-		if strings.HasPrefix(line, "RCPT TO:<") {
-			rcpt := strings.TrimPrefix(line, "RCPT TO:<")
-			rcpt = strings.TrimSuffix(rcpt, ">")
-			recipients = append(recipients, rcpt)
+	// Send greeting
+	writer.WriteString("220 smtp.example.com Simple Mail Transfer Service Ready\r\n")
+	writer.Flush()
+
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("Failed to read client message:", err)
+			return
 		}
+		line = strings.TrimSpace(line)
+
+		// Check command
+		switch {
+		case strings.HasPrefix(line, "HELO") || strings.HasPrefix(line, "EHLO"):
+			writer.WriteString("250 smtp.example.com at your service\r\n")
+		case strings.HasPrefix(line, "MAIL FROM:"):
+			writer.WriteString("250 2.1.0 Sender OK\r\n")
+		case strings.HasPrefix(line, "RCPT TO:"):
+			writer.WriteString("250 2.1.5 Recipient OK\r\n")
+		case strings.HasPrefix(line, "DATA"):
+			writer.WriteString("354 Start mail input; end with <CRLF>.<CRLF>\r\n")
+			writer.Flush()
+
+			// Read the email body
+			bodyLines, err := readEmailBody(reader)
+			if err != nil {
+				fmt.Println("Failed to read email body:", err)
+				return
+			}
+			body := strings.Join(bodyLines, "\n")
+
+			// Parse the email and convert it to JSON
+			parsedEmail, err := parseEmail(body)
+			if err != nil {
+				fmt.Println("Failed to parse email:", err)
+				return
+			}
+			fmt.Printf("Email From %s\n", parsedEmail.From)
+			fmt.Printf("Email To %s\n", parsedEmail.To)
+			fmt.Printf("Email Subject %s\n", parsedEmail.Subject)
+
+
+
+			if err != nil {
+				fmt.Println("Failed to print email as formatted JSON:", err)
+				return
+			}
+			writer.WriteString("250 2.0.0 OK\r\n")
+		case strings.HasPrefix(line, "QUIT"):
+			writer.WriteString("221 2.0.0 Bye\r\n")
+			writer.Flush()
+			return
+		default:
+			writer.WriteString("500 5.5.1 Command unrecognized\r\n")
+		}
+		writer.Flush()
 	}
-
-	// Print the sender and recipients
-	fmt.Println("Received message from", from)
-	fmt.Println("Recipients:", recipients)
-
-	// Send a response to the client
-	conn.Write([]byte("250 OK\r\n"))
 }
+
 
 func StartServer() {
 	// Listen on port 25
@@ -52,6 +83,7 @@ func StartServer() {
 		return
 	}
 	defer ln.Close()
+	fmt.Println("SMTP Server is online!")
 
 	// Accept connections
 	for {

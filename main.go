@@ -1,7 +1,7 @@
 package main
 
-import "fmt"
+import "email-reciever/email"
 
 func main() {
-	fmt.Println("Hello, World!")
+	email.StartServer()
 }
