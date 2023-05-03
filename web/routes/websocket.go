@@ -1,4 +1,4 @@
-package web
+package routes
 
 import (
 	"fmt"
@@ -34,7 +34,7 @@ func handleWebsocket(conn *websocket.Conn) {
 	}
 }
 
-func websocketHandler(c *gin.Context) {
+func WebsocketHandler(c *gin.Context) {
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		fmt.Printf("Failed to upgrade connection to WebSocket: %v\n", err)

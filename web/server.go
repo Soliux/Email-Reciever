@@ -1,8 +1,8 @@
 package web
 
 import (
+	"email-reciever/web/routes"
 	"fmt"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,20 +15,8 @@ func StartServer() {
 
 	r.LoadHTMLGlob("templates/*")
 
-	r.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.html", nil)
-	})
+	routes.RegisterRoutes(r)
 
-	api := r.Group("/api")
-	websocket := r.Group("/ws")
-
-	api.GET("/message", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Hello, World!",
-		})
-	})
-
-	websocket.GET("", websocketHandler)
 	r.Run()
 }
 
