@@ -16,9 +16,20 @@ COPY . .
 # Build the Go app
 RUN go build -o main .
 
-# Expose port 25 and 8080 to the outside world
+# Expose ports 25, 8080, and 5432
 EXPOSE 25
 EXPOSE 8080
+EXPOSE 5432
 
-# Command to run the app
-CMD ["./main"]
+# Install PostgreSQL client and server
+RUN apt-get update && apt-get install -y postgresql postgresql-contrib
+
+# Create a new PostgreSQL user and database
+USER postgres
+RUN /etc/init.d/postgresql start &&\
+    psql --command "CREATE USER myuser WITH PASSWORD 'mypassword';" &&\
+    createdb -O myuser mydb
+USER root
+
+# Command to run the app and PostgreSQL
+CMD service postgresql start && ./main
